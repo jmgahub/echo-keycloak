@@ -1,12 +1,13 @@
 package keycloak
 
 import (
+	"context"
 	"net/http"
 	"reflect"
 	"strings"
 
-	"github.com/Nerzal/gocloak/v5"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/Nerzal/gocloak/v13"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -125,7 +126,7 @@ func KeycloakWithConfig(config KeycloakConfig) echo.MiddlewareFunc {
 	if config.AuthScheme == "" {
 		config.AuthScheme = DefaultKeycloakConfig.AuthScheme
 	}
-	config.gocloakClient = gocloak.NewClient(config.KeycloakURL)
+	config.gocloakClient = *gocloak.NewClient(config.KeycloakURL)
 
 	// Initialize
 	parts := strings.Split(config.TokenLookup, ":")
@@ -163,11 +164,11 @@ func KeycloakWithConfig(config KeycloakConfig) echo.MiddlewareFunc {
 			token := new(jwt.Token)
 
 			if _, ok := config.Claims.(jwt.MapClaims); ok {
-				token, _, err = config.gocloakClient.DecodeAccessToken(auth, config.KeycloakRealm)
+				token, _, err = config.gocloakClient.DecodeAccessToken(context.TODO(), auth, config.KeycloakRealm)
 			} else {
 				t := reflect.ValueOf(config.Claims).Type().Elem()
 				claims := reflect.New(t).Interface().(jwt.Claims)
-				token, err = config.gocloakClient.DecodeAccessTokenCustomClaims(auth, config.KeycloakRealm, claims)
+				token, err = config.gocloakClient.DecodeAccessTokenCustomClaims(context.TODO(), auth, config.KeycloakRealm, claims)
 			}
 			if err == nil && token.Valid {
 				c.Set(config.ContextKey, token)

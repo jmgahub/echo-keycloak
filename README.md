@@ -1,3 +1,6 @@
+## forked from baba2k/echo-keycloak
+Simply to update gocloak version
+
 # echo-keycloak
 Keycloak authorization middleware for echo v4
 
