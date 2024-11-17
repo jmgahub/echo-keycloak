@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/baba2k/echo-keycloak"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
+	keycloak "github.com/jmgahub/echo-keycloak"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -24,7 +24,7 @@ func main() {
 
 	restricted.GET("", func(c echo.Context) error {
 		token := c.Get("user").(*jwt.Token)
-		claims := token.Claims.(*jwt.MapClaims)
+		claims := token.Claims.(jwt.MapClaims)
 		prettyJSONClaims, _ := json.MarshalIndent(claims, "", "   ")
 		return c.String(http.StatusOK, fmt.Sprintf(
 			"Hello, User! Your claims are:\n%+v\n", string(prettyJSONClaims)))
